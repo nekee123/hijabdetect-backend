@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "hijabdetect-backend"
+version = "0.1.0"
+description = "Hijab Detection API"
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "0.115.0"
+uvicorn = "0.38.0"
+ultralytics = "8.3.211"
+pillow = "11.3.0"
+python-multipart = "0.0.7"
+numpy = "1.26.2"
+opencv-python = "4.12.0.88"
+torch = "2.8.0"
+torchvision = "0.15.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
