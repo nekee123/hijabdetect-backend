@@ -5,7 +5,7 @@ description = "Hijab Detection API"
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
 fastapi = "0.115.0"
 uvicorn = "0.38.0"
 ultralytics = "8.3.211"
