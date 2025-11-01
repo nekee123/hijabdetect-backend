@@ -3,13 +3,15 @@ FastAPI Hijab Detection API (using Roboflow Hosted Model)
 Counts how many hijab wearers are in the uploaded image.
 """
 
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Form
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import requests
 import os
+import uuid
+import shutil
 
 # === Configuration ===
 API_URL = "https://detect.roboflow.com/hijab-detector/1"
@@ -60,24 +62,12 @@ async def detect_hijab_web(request: Request, file: UploadFile = File(...)):
         result_json = response.json()
         hijab_count = sum(1 for pred in result_json.get("predictions", []) if pred["class"].lower() == "hijab")
 
-        # Draw bounding boxes on the uploaded image
-        import cv2
-        import uuid
-
+        # Save the uploaded image to static folder without any bounding boxes
         output_image_path = f"static/{uuid.uuid4().hex}_{file.filename}"
-        img = cv2.imread(temp_path)
-        for pred in result_json.get("predictions", []):
-            if pred["class"].lower() == "hijab":
-                x, y = int(pred["x"]), int(pred["y"])
-                w, h = int(pred["width"]), int(pred["height"])
-                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                cv2.putText(img, f"{pred['class']} {pred['confidence']*100:.1f}%",
-                            (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1)
-
-        cv2.imwrite(output_image_path, img)
+        shutil.copy(temp_path, output_image_path)
         os.remove(temp_path)  # clean up temp file
 
-        # Return only the message and image path (no predictions)
+        # Return only the hijab count and image path
         result = {
             "message": f"🧕 {hijab_count} hijab wearers detected"
         }
