@@ -61,24 +61,13 @@ async def detect_hijab_web(request: Request, file: UploadFile = File(...)):
         result_json = response.json()
         hijab_count = sum(1 for pred in result_json.get("predictions", []) if pred["class"].lower() == "hijab")
 
-        # Draw bounding boxes on the uploaded image
-        import cv2
-        import uuid
-
+        # Save the uploaded image directly, NO green boxes
+        import uuid, shutil
         output_image_path = f"static/{uuid.uuid4().hex}_{file.filename}"
-        img = cv2.imread(temp_path)
-        for pred in result_json.get("predictions", []):
-            if pred["class"].lower() == "hijab":
-                x, y = int(pred["x"]), int(pred["y"])
-                w, h = int(pred["width"]), int(pred["height"])
-                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                cv2.putText(img, f"{pred['class']} {pred['confidence']*100:.1f}%",
-                            (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1)
-
-        cv2.imwrite(output_image_path, img)
+        shutil.copy(temp_path, output_image_path)
         os.remove(temp_path)  # clean up temp file
 
-        # Return only the message and image path (no predictions)
+        # Return hijab count and image path
         result = {
             "message": f"🧕 {hijab_count} hijab wearers detected"
         }
